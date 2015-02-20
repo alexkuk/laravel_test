@@ -2,6 +2,8 @@
 
 use App\Cf\Model\Trade\Transaction;
 use App\Http\Controllers\Controller;
+use Elasticsearch\Common\Exceptions\Missing404Exception;
+use Fadion\Bouncy\ElasticCollection;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -40,11 +42,24 @@ class HomeController extends Controller {
             $currentPage = 1;
         }
 
-        $transactions = Transaction::search([
-            'from' => ($currentPage-1) * self::GRID_PAGE_SIZE,
-            'size' => self::GRID_PAGE_SIZE,
-            'sort' => ['timePlaced' => 'desc']
-        ]);
+        try {
+            $transactions = Transaction::search([
+                'from' => ($currentPage - 1) * self::GRID_PAGE_SIZE,
+                'size' => self::GRID_PAGE_SIZE,
+                'sort' => ['timePlaced' => 'desc']
+            ]);
+        }
+        catch (Missing404Exception $e) {
+            $transactions = new ElasticCollection(
+                [
+                    'hits' => [
+                        'hits' => [],
+                        'total' => 0
+                    ]
+                ],
+                []
+            );
+        }
 
         $paginator = new LengthAwarePaginator($transactions, $transactions->total(), self::GRID_PAGE_SIZE, $currentPage);
 
