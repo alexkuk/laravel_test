@@ -1,3 +1,8 @@
+## Credentials
+To access frontend list of transactions use the following credentials:
+E-mail: cf@currencyfair.com
+Password: cfap1user
+
 ## Test
 I decided to concentrate on the first part - message consumption. That's why the frontend part is a simple grid with pagination.
 
